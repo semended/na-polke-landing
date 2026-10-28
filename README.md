@@ -6,11 +6,11 @@
 
 ## Ссылки для сдачи
 
-Планируемый адрес лендинга: https://semended.github.io/na-polke-landing/
+Лендинг: https://semended.github.io/na-polke-landing/
 
-Планируемый репозиторий: https://github.com/semended/na-polke-landing
+Репозиторий: https://github.com/semended/na-polke-landing
 
-Статус публикации и результаты проверки фиксируются в `QA.md` после размещения.
+Опубликовано и проверено 28 октября 2026. Результаты локальной и публичной проверки — `QA.md`. Зафиксированная версия для отдельной сдачи — Git-тег `stage-2-v2`.
 
 ## Запуск
 
