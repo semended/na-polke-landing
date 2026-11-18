@@ -1,0 +1,94 @@
+.work-panel {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  padding: clamp(18px, 3vw, 36px);
+  margin-bottom: 20px;
+  border-radius: 4px;
+  overflow-wrap: anywhere;
+}
+
+.work-panel h2 {
+  font-size: clamp(20px, 3vw, 28px);
+}
+
+.work-panel > p,
+.work-list small {
+  color: var(--muted);
+  line-height: 1.55;
+  margin-top: 8px;
+}
+
+.work-list {
+  list-style: none;
+  margin: 18px 0 0;
+  padding: 0;
+}
+
+.work-list li {
+  border-top: 1px solid var(--line);
+}
+
+.work-row,
+.work-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px 20px;
+  flex-wrap: wrap;
+}
+
+.work-row {
+  justify-content: space-between;
+}
+
+.work-list .work-row {
+  padding: 14px 0;
+}
+
+.work-list small {
+  display: block;
+  margin: 3px 0 0;
+}
+
+.work-order:hover strong,
+.work-order:focus-visible strong {
+  text-decoration: underline;
+}
+
+.work-actions {
+  margin-top: 18px;
+}
+
+.work-link {
+  color: var(--accent);
+  padding: 8px 0;
+  background: transparent;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  border: 0;
+  font: inherit;
+}
+
+.profile-panel .work-link {
+  margin-top: 14px;
+}
+
+.work-editor {
+  border-left: 3px solid var(--accent);
+  padding: 10px 0 12px clamp(12px, 2vw, 24px);
+  margin: 14px 0 24px;
+}
+
+.work-editor h3 {
+  margin-bottom: 16px;
+}
+
+.work-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.work-panel .work-notice:empty {
+  margin: 0;
+}

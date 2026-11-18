@@ -1,0 +1,61 @@
+name: Test and publish coursework
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
+        with:
+          node-version: 24
+          cache: npm
+          cache-dependency-path: mvp/package-lock.json
+      - name: Install, test and build the frontend
+        working-directory: mvp
+        run: |
+          npm ci
+          npm run format:check
+          npm test
+          npm run build
+      - name: Exercise the built app in Chromium
+        working-directory: mvp
+        run: |
+          npx playwright install --with-deps chromium --only-shell
+          npm run preview -- --port 4173 --strictPort &
+          server=$!
+          trap 'kill "$server" 2>/dev/null || true' EXIT
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/ -o /dev/null
+          MVP_URL=http://127.0.0.1:4173/ npm run test:e2e
+      - name: Assemble the landing page, presentation and MVP
+        run: |
+          mkdir site
+          cp -R index.html styles.css script.js assets presentation site/
+          cp -R mvp/dist site/mvp
+          cp README.md QA.md SOURCES.md LANDING.md site/
+      - uses: actions/upload-pages-artifact@v5.0.0
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.publish.outputs.page_url }}
+    steps:
+      - id: publish
+        uses: actions/deploy-pages@v5.0.1
