@@ -280,6 +280,7 @@ test("Обновление и архивация товара меняют ви�
     .fill("Обновлённое описание для покупателей.");
   await page.getByLabel("В наличии").uncheck();
   await page.getByRole("button", { name: "Сохранить товар" }).click();
+  await visibleText(page, /329\s*₽/);
   await page.reload();
   await edit.click();
   assert.equal(await page.getByLabel(/цена/i).inputValue(), "329");
@@ -298,6 +299,7 @@ test("Обновление и архивация товара меняют ви�
   await edit.click();
   await page.getByLabel(/в архиве/i).check();
   await page.getByRole("button", { name: "Сохранить товар" }).click();
+  await edit.waitFor();
   await chooseProfile(page, /Анна/i);
   await visit(page, "/catalog");
   await page
@@ -332,6 +334,7 @@ test("Новый товар доступен в каталоге после со
   await page.getByLabel("Описание").fill("Товар для проверки каталога.");
   await checkWidth(page);
   await page.getByRole("button", { name: "Сохранить товар" }).click();
+  await page.getByRole("button", { name: "Редактировать " + title }).waitFor();
   await chooseProfile(page, /выйти из профиля/i);
   await visit(page, "/catalog");
   await page.reload();
@@ -387,6 +390,7 @@ test("Просроченный редактор товара не перезап
     .fill("Несохранённое описание из второй вкладки");
   await first.getByLabel(/цена/i).fill("420");
   await first.getByRole("button", { name: "Сохранить товар" }).click();
+  await visibleText(first, /420\s*₽/);
   await second.getByRole("button", { name: "Сохранить товар" }).click();
   await visibleText(second, /в другой вкладке|уже измен|конфликт/i);
   await second.reload();
