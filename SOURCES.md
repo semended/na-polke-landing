@@ -13,17 +13,13 @@
 
 ## Фотографии в приложении этапа 3
 
-Фотографии получены из Open Food Facts. Для приложения кадры обрезаны и
-сжаты в WebP, сохранены две ширины. Оригиналы и обработанные версии
-распространяются по [CC BY-SA 3.0](https://creativecommons.org/licenses/by-sa/3.0/).
-Права на марки и оформление упаковок принадлежат их владельцам.
-[Условия использования изображений Open Food Facts](https://github.com/openfoodfacts/openfoodfacts-server/blob/main/docs/api/tutorials/license-be-on-the-legal-side.md).
+Для витрины выбраны фотографии единичных упаковок из каталогов производителей и магазинов. Ссылки ведут на страницы с нужным вкусом и фасовкой. У фотографий обрезаны поля, фон сведён к прозрачному. Для каждой упаковки сохранены две версии WebP в `mvp/public/products/`. Открытая лицензия для этих фотографий в источниках не указана. Оформление упаковок и товарные знаки принадлежат их правообладателям.
 
-| Товар | Исходник | Автор фотографии |
-| --- | --- | --- |
-| Haribo Phantasia 160 г | [Open Food Facts, 4001686335307](https://world.openfoodfacts.org/product/4001686335307) · [Кадр](https://images.openfoodfacts.org/images/products/400/168/633/5307/front_pl.21.400.jpg) | foodless |
-| Fanta White Peach 300 мл | [Open Food Facts, 4902102144995](https://world.openfoodfacts.org/product/4902102144995) · [Кадр](https://images.openfoodfacts.org/images/products/490/210/214/4995/front_en.55.400.jpg) | foodless |
-| Marabou Oreo 170 г | [Open Food Facts, 7622202271465](https://world.openfoodfacts.org/product/7622202271465) · [Кадр](https://images.openfoodfacts.org/images/products/762/220/227/1465/front_mg.4.400.jpg) | prepperapp |
-| Maltesers Maxi Pack 300 г | [Open Food Facts, 5000159361323](https://world.openfoodfacts.org/product/5000159361323) · [Кадр](https://images.openfoodfacts.org/images/products/500/015/936/1323/front_en.3.400.jpg) | Участники Open Food Facts |
-| Kinder Country 23,5 г | [Open Food Facts, 40084176](https://world.openfoodfacts.org/product/40084176) · [Кадр](https://images.openfoodfacts.org/images/products/000/004/008/4176/front_de.141.400.jpg) | foodless |
-| Skittles Fruits 125 г | [Open Food Facts, 4009900500166](https://world.openfoodfacts.org/product/4009900500166) · [Кадр](https://images.openfoodfacts.org/images/products/400/990/050/0166/front_en.43.400.jpg) | foodless |
+| Упаковка | Страница с фотографией |
+| --- | --- |
+| Haribo Phantasia, 160 г | [HARIBO Polska](https://www.haribo.com/pl-pl/produkty/haribo/phantasia) |
+| Fanta White Peach, 300 мл, японская алюминиевая бутылка | [Poppin Candy](https://poppin-candy.com/products/fanta-white-peach-metal-bottle-japan-10-1fl-oz-300ml) |
+| Marabou Oreo, 170 г | [Heinemann](https://www.taxfree-heinemann.dk/en/global/marabou/marabou-oreo-170g/p/000000000001725570/) |
+| Maltesers Maxi Pack, 300 г | [Mars Norge в каталоге Matinfo](https://produkter.matinfo.no/Mars-Norge-As/Maltesers-xl-300g/05000159361323) |
+| Kinder Country, 23,5 г | [AlkoOutlet](https://alkooutlet.pl/pl/p/KINDER-COUNTRY-23%2C5g/19865) |
+| Skittles Fruits, 125 г, банка | [Ambas Foods](https://www.ambasfoods.co.uk/shop/ambas/p/p-7194/) |
