@@ -1,17 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Route, Routes, useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAppDispatch, useAppSelector, addItem, selectCount } from "./store";
-import { Account } from "./pages/Account";
-import { Staff } from "./pages/Staff";
 import { canBuy } from "./domain";
 import { storageReadFailed } from "./storage";
-import { Bag, Empty } from "./components/Shared";
-import { Home } from "./pages/Home";
-import { Catalog } from "./pages/Catalog";
-import { Product } from "./pages/Product";
-import { Cart } from "./pages/Cart";
-import { Checkout } from "./pages/Checkout";
-import { Orders, OrderDetail } from "./pages/Orders";
+import { ShopHeader } from "./components/ShopHeader";
+import { ShopRoutes } from "./ShopRoutes";
+
 const pageTitles: Record<string, string> = {
   catalog: "Каталог",
   product: "Товар",
@@ -69,32 +63,7 @@ export default function App() {
       >
         К содержимому
       </a>
-      <div className="topbar">
-        Учебный магазин · Самовывоз и оплата при получении
-      </div>
-      <div className="wrap">
-        <header className="header">
-          <Link className="logo" to="/" aria-label="На полке, главная">
-            на полке
-          </Link>
-          <nav className="nav" aria-label="Основное меню">
-            <NavLink to="/catalog">Каталог</NavLink>
-            <NavLink to={session === "staff" ? "/staff" : "/orders"}>
-              {session === "staff" ? "Кабинет сотрудника" : "Мои заказы"}
-            </NavLink>
-            <NavLink to="/account">Профиль</NavLink>
-          </nav>
-          <Link
-            className="cart-link"
-            to="/cart"
-            aria-label={`Корзина, ${count} шт.`}
-          >
-            <Bag />
-            <span className="cart-label">Корзина</span>
-            <span className="cart-count">{count}</span>
-          </Link>
-        </header>
-      </div>
+      <ShopHeader count={count} session={session} />
       {storageError ? (
         <div className="storage-warning" role="alert">
           Браузер не разрешает сохранять данные. Изменения могут потеряться
@@ -116,25 +85,7 @@ export default function App() {
             </button>
           </section>
         ) : (
-          <Routes>
-            <Route path="/" element={<Home onAdd={add} />} />
-            <Route path="/catalog" element={<Catalog onAdd={add} />} />
-            <Route path="/product/:id" element={<Product onAdd={add} />} />
-            <Route path="/cart" element={<Cart />} />
-            <Route path="/checkout" element={<Checkout />} />
-            <Route path="/account" element={<Account />} />
-            <Route path="/staff" element={<Staff />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:id" element={<OrderDetail />} />
-            <Route
-              path="*"
-              element={
-                <Empty title="Такой страницы нет">
-                  Вернитесь в каталог и выберите новый вкус.
-                </Empty>
-              }
-            />
-          </Routes>
+          <ShopRoutes onAdd={add} />
         )}
       </main>
       <div className="wrap">
@@ -146,6 +97,13 @@ export default function App() {
             Учебный магазин. Цены демонстрационные.
             <br />
             Данные сохраняются только в этом браузере.
+            <br />
+            <a
+              className="backlink"
+              href="https://github.com/semended/na-polke-landing/blob/main/SOURCES.md#фотографии-в-приложении-этапа-3"
+            >
+              Источники фотографий
+            </a>
           </span>
         </footer>
       </div>

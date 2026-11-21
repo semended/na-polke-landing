@@ -7,13 +7,7 @@ import {
   type UnknownAction,
 } from "@reduxjs/toolkit";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  canBuy,
-  cartTotal,
-  type Cart,
-  type Checkout,
-  type Session,
-} from "./domain";
+import { canBuy, cartTotal, type Checkout, type Session } from "./domain";
 import { emptyDraft, isShopKey, readShop, writeTab } from "./storage";
 import { catalogReducer, inventoryReducer } from "./state/catalog";
 import { ordersReducer, submitOrder } from "./state/orders";

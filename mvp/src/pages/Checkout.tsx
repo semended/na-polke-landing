@@ -13,7 +13,8 @@ import {
   submitOrder,
 } from "../store";
 import { Empty, Summary } from "../components/Shared";
-import { Field } from "../components/Field";
+import { CheckoutContactForm } from "../components/CheckoutContactForm";
+
 export function Checkout() {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
@@ -55,14 +56,15 @@ export function Checkout() {
     dispatch(updateDraft({ ...draft, [key]: value }));
     setErrors((e) => ({ ...e, [key]: undefined }));
   }
-  async function submit(e: React.FormEvent) {
+  async function submit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy || priceChanges.length) return;
     const next = validateCheckout(draft);
     setErrors(next);
     if (Object.keys(next).length) {
+      const form = e.currentTarget;
       requestAnimationFrame(() =>
-        document.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
+        form.querySelector<HTMLElement>('[aria-invalid="true"]')?.focus(),
       );
       return;
     }
@@ -85,68 +87,14 @@ export function Checkout() {
         ) : null}
       </div>
       <div className="split">
-        <form
-          className="checkout-form"
-          id="checkout"
+        <CheckoutContactForm
+          draft={draft}
+          errors={errors}
+          busy={busy}
+          submitError={order.error}
+          onChange={change}
           onSubmit={submit}
-          noValidate
-        >
-          <h2>Ваши контакты</h2>
-          <p className="form-hint">
-            Имя и телефон обязательны. Данные останутся только в этом браузере.
-          </p>
-          <fieldset disabled={busy}>
-            <div className="fields">
-              <Field
-                label="Имя"
-                name="name"
-                value={draft.name}
-                onChange={(v) => change("name", v)}
-                error={errors.name}
-              />
-              <Field
-                label="Телефон"
-                name="phone"
-                type="tel"
-                value={draft.phone}
-                onChange={(v) => change("phone", v)}
-                error={errors.phone}
-              />
-              <Field
-                label="Комментарий"
-                name="comment"
-                value={draft.comment}
-                onChange={(v) => change("comment", v)}
-                error={errors.comment}
-                multiline
-              />
-            </div>
-          </fieldset>
-          <p className="field-note">
-            Телефон: +7 или 8 и ещё 10 цифр. Комментарий — до 500 символов.
-          </p>
-          <h2 className="delivery-title">Получение заказа</h2>
-          <div className="pickup">
-            <span className="pickup-dot" />
-            <div>
-              <b>Самовывоз · бесплатно</b>
-              <p>
-                Оплата при получении. Наличие и время самовывоза уточняет
-                сотрудник.
-              </p>
-            </div>
-          </div>
-          {order.error ? (
-            <p className="form-error" role="alert">
-              {order.error}
-            </p>
-          ) : null}
-          {busy ? (
-            <p className="subtle" role="status">
-              Сохраняем ваш учебный заказ…
-            </p>
-          ) : null}
-        </form>
+        />
         <Summary>
           {priceChanges.length > 0 && (
             <div className="price-change">

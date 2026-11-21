@@ -843,3 +843,25 @@ button:disabled {
     margin-bottom: 8px;
   }
 }
+
+.nav .profile-link {
+  display: inline-flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 6px;
+}
+.profile-name {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.cart-link {
+  min-height: 44px;
+}
+
+@media (max-width: 700px) {
+  .nav {
+    flex-wrap: wrap;
+    gap: 2px 14px;
+  }
+}

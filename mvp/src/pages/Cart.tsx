@@ -1,7 +1,6 @@
-import { ProductPhoto } from "../components/ProductPhoto";
+import { CartRow } from "../components/CartRow";
 import { Link } from "react-router-dom";
 
-import { canBuy, money } from "../domain";
 import {
   useAppDispatch,
   useAppSelector,
@@ -35,53 +34,16 @@ export function Cart() {
       <div className="split">
         <section aria-label="Товары в корзине">
           {products
-            .filter((p) => cart[p.id])
-            .map((p) => (
-              <article className="cart-row" key={p.id}>
-                <Link
-                  to={`/product/${p.id}`}
-                  className="cart-photo"
-                  aria-label={`Открыть ${p.name}`}
-                >
-                  <ProductPhoto product={p} />
-                </Link>
-                <div className="cart-name">
-                  <Link to={`/product/${p.id}`}>
-                    <h2>{p.name}</h2>
-                  </Link>
-                  <p>
-                    {p.flavor} · {p.size}
-                  </p>
-                  <p>{money(p.price)} за шт.</p>
-                  {!canBuy(p) && (
-                    <p>Товар недоступен. Уберите его из корзины.</p>
-                  )}
-                  <button
-                    className="remove"
-                    onClick={() => dispatch(removeItem(p.id))}
-                    aria-label={`Удалить ${p.name}`}
-                  >
-                    Убрать из корзины
-                  </button>
-                </div>
-                <div className="quantity">
-                  <button
-                    onClick={() => dispatch(decreaseItem(p.id))}
-                    aria-label={`Уменьшить количество ${p.name}`}
-                  >
-                    −
-                  </button>
-                  <span data-testid="quantity-value">{cart[p.id]}</span>
-                  <button
-                    onClick={() => dispatch(addItem(p.id))}
-                    disabled={!canBuy(p) || cart[p.id] >= 99}
-                    aria-label={`Увеличить количество ${p.name}`}
-                  >
-                    +
-                  </button>
-                </div>
-                <span className="price">{money(p.price * cart[p.id])}</span>
-              </article>
+            .filter((product) => cart[product.id])
+            .map((product) => (
+              <CartRow
+                key={product.id}
+                product={product}
+                quantity={cart[product.id]}
+                onRemove={() => dispatch(removeItem(product.id))}
+                onDecrease={() => dispatch(decreaseItem(product.id))}
+                onIncrease={() => dispatch(addItem(product.id))}
+              />
             ))}
         </section>
         <Summary />
