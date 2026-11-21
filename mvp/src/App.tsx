@@ -1,8 +1,15 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { useAppDispatch, useAppSelector, addItem, selectCount } from "./store";
-import { canBuy } from "./domain";
+import {
+  useAppDispatch,
+  useAppSelector,
+  addItem,
+  selectCount,
+  selectTotal,
+} from "./store";
+import { canBuy, money } from "./domain";
 import { storageReadFailed } from "./storage";
+import { Bag } from "./components/Shared";
 import { ShopHeader } from "./components/ShopHeader";
 import { ShopRoutes } from "./ShopRoutes";
 
@@ -19,6 +26,7 @@ const pageTitles: Record<string, string> = {
 export default function App() {
   const dispatch = useAppDispatch();
   const count = useAppSelector(selectCount);
+  const total = useAppSelector(selectTotal);
   const session = useAppSelector((state) => state.session);
   const inventory = useAppSelector((state) => state.inventory);
   const location = useLocation();
@@ -43,6 +51,10 @@ export default function App() {
       clearTimeout(timer.current);
     };
   }, []);
+  const showMobileBasket =
+    count > 0 &&
+    (location.pathname === "/catalog" ||
+      location.pathname.startsWith("/product/"));
   function add(id: string) {
     const product = inventory.find((p) => p.id === id);
     if (!product || !canBuy(product)) return;
@@ -63,7 +75,7 @@ export default function App() {
       >
         К содержимому
       </a>
-      <ShopHeader count={count} session={session} />
+      <ShopHeader count={count} total={total} session={session} />
       {storageError ? (
         <div className="storage-warning" role="alert">
           Браузер не разрешает сохранять данные. Изменения могут потеряться
@@ -93,20 +105,27 @@ export default function App() {
           <Link className="logo" to="/">
             на полке
           </Link>
+          <Link className="staff-entry" to="/account">
+            Вход для сотрудника
+          </Link>
           <span>
             Учебный магазин. Цены демонстрационные.
             <br />
             Данные сохраняются только в этом браузере.
-            <br />
-            <a
-              className="backlink"
-              href="https://github.com/semended/na-polke-landing/blob/main/SOURCES.md#фотографии-в-приложении-этапа-3"
-            >
-              Источники фотографий
-            </a>
           </span>
         </footer>
       </div>
+      {showMobileBasket && (
+        <Link
+          className="mobile-basket"
+          to="/cart"
+          aria-label={`Открыть корзину, ${count} шт., ${money(total)}`}
+        >
+          <Bag />
+          <span>К корзине</span>
+          <b>{money(total)}</b>
+        </Link>
+      )}
       <div
         className={`toast ${toast ? "show" : ""}`}
         role="status"

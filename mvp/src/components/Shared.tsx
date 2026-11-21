@@ -45,13 +45,20 @@ export function Empty({
     </section>
   );
 }
-export function Summary({ children }: { children?: React.ReactNode }) {
+export function Summary({
+  children,
+  items,
+}: {
+  children?: React.ReactNode;
+  items?: React.ReactNode;
+}) {
   const count = useAppSelector(selectCount);
   const total = useAppSelector(selectTotal);
   const unavailable = useAppSelector(selectHasUnavailableItem);
   return (
     <aside className="summary">
       <h2>Ваш заказ</h2>
+      {items}
       <div className="sumline">
         <span>Товары, {count} шт.</span>
         <b>{money(total)}</b>
@@ -76,11 +83,7 @@ export function Summary({ children }: { children?: React.ReactNode }) {
           </Link>
         ))
       )}
-      <p>
-        Самовывоз из магазина.
-        <br />
-        Оплата при получении.
-      </p>
+      <p>Оплата при получении в магазине.</p>
     </aside>
   );
 }

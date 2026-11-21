@@ -1,53 +1,73 @@
-import { ProductPhoto } from "./ProductPhoto";
 import { Link } from "react-router-dom";
 import { money, type Product } from "../domain";
+import { ProductPhoto } from "./ProductPhoto";
+
+type Props = {
+  product: Product;
+  onAdd: (id: string) => void;
+  onDecrease: (id: string) => void;
+  quantity?: number;
+};
+
 export function ProductCard({
   product,
   onAdd,
+  onDecrease,
   quantity = 0,
-}: {
-  product: Product;
-  onAdd: (id: string) => void;
-  quantity?: number;
-}) {
+}: Props) {
+  const unavailable = product.available === false;
+  const addLabel = unavailable
+    ? `${product.name}: нет в наличии`
+    : `Добавить ${product.name} в корзину`;
   return (
     <article className="product-card">
       <Link
         to={`/product/${product.id}`}
-        className={`photo-stage ${product.tone}`}
+        className="photo-stage"
         aria-label={`Открыть ${product.name}`}
       >
-        <ProductPhoto product={product} />
+        <ProductPhoto
+          product={product}
+          sizes="(max-width: 600px) 42vw, 200px"
+        />
       </Link>
       <div className="card-copy">
-        <small>
-          {product.category} · {product.size}
-        </small>
+        <span className="price">{money(product.price)}</span>
         <Link to={`/product/${product.id}`}>
           <h3>{product.name}</h3>
         </Link>
-        <div className="card-bottom">
-          <span className="price">{money(product.price)}</span>
+        <small>
+          {product.category} · {product.size}
+        </small>
+      </div>
+      {quantity ? (
+        <div className="card-stepper" aria-label={`Количество ${product.name}`}>
           <button
-            className="mini-add"
-            onClick={() => onAdd(product.id)}
-            disabled={product.available === false || quantity >= 99}
-            aria-label={
-              product.available === false
-                ? `${product.name}: нет в наличии`
-                : `Добавить ${product.name} в корзину`
-            }
+            onClick={() => onDecrease(product.id)}
+            aria-label={`Уменьшить количество ${product.name}`}
           >
-            {quantity ? "✓" : "+"}
+            −
+          </button>
+          <span aria-live="polite">{quantity} шт.</span>
+          <button
+            onClick={() => onAdd(product.id)}
+            disabled={unavailable || quantity >= 99}
+            aria-label={addLabel}
+          >
+            +
           </button>
         </div>
-        {product.available === false && (
-          <span className="in-cart">Нет в наличии</span>
-        )}
-        {quantity > 0 ? (
-          <span className="in-cart">В корзине: {quantity} шт.</span>
-        ) : null}
-      </div>
+      ) : (
+        <button
+          className="card-add"
+          onClick={() => onAdd(product.id)}
+          disabled={unavailable}
+          aria-label={addLabel}
+        >
+          {!unavailable && <span aria-hidden="true">+</span>}
+          {unavailable ? "Нет в наличии" : "В корзину"}
+        </button>
+      )}
     </article>
   );
 }

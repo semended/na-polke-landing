@@ -19,7 +19,7 @@ describe("ProductCard", () => {
   it("shows the product name, price and a link to its detail page", () => {
     const { container } = render(
       <MemoryRouter>
-        <ProductCard product={product} onAdd={vi.fn()} />
+        <ProductCard onDecrease={vi.fn()} product={product} onAdd={vi.fn()} />
       </MemoryRouter>,
     );
     expect(
@@ -35,7 +35,7 @@ describe("ProductCard", () => {
     const onAdd = vi.fn();
     render(
       <MemoryRouter>
-        <ProductCard product={product} onAdd={onAdd} />
+        <ProductCard onDecrease={vi.fn()} product={product} onAdd={onAdd} />
       </MemoryRouter>,
     );
     fireEvent.click(
@@ -49,7 +49,12 @@ describe("ProductCard", () => {
     const onAdd = vi.fn();
     render(
       <MemoryRouter>
-        <ProductCard product={product} onAdd={onAdd} quantity={2} />
+        <ProductCard
+          onDecrease={vi.fn()}
+          product={product}
+          onAdd={onAdd}
+          quantity={2}
+        />
       </MemoryRouter>,
     );
     fireEvent.click(

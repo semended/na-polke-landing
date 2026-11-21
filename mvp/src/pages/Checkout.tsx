@@ -13,6 +13,7 @@ import {
   submitOrder,
 } from "../store";
 import { Empty, Summary } from "../components/Shared";
+import { CheckoutItems } from "../components/CheckoutItems";
 import { CheckoutContactForm } from "../components/CheckoutContactForm";
 
 export function Checkout() {
@@ -76,9 +77,9 @@ export function Checkout() {
     <>
       <div className="page-heading">
         <div>
-          <div className="eyebrow">Последний шаг</div>
+          <div className="eyebrow">Самовывоз</div>
           <h1>Оформление заказа</h1>
-          <p>Попробуйте сценарий на вымышленных данных.</p>
+          <p>Для учебного заказа укажите вымышленные контакты.</p>
         </div>
         {!busy ? (
           <Link className="backlink" to="/cart">
@@ -95,7 +96,7 @@ export function Checkout() {
           onChange={change}
           onSubmit={submit}
         />
-        <Summary>
+        <Summary items={<CheckoutItems />}>
           {priceChanges.length > 0 && (
             <div className="price-change">
               <div role="alert">

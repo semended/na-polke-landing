@@ -2,8 +2,15 @@ import { useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { categories } from "../products";
 import { filterProducts } from "../domain";
-import { fetchProducts, useAppDispatch, useAppSelector } from "../store";
+import {
+  decreaseItem,
+  fetchProducts,
+  useAppDispatch,
+  useAppSelector,
+} from "../store";
 import { ProductCard } from "../components/ProductCard";
+import { FeaturedShelf } from "../components/FeaturedShelf";
+
 export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
@@ -31,28 +38,14 @@ export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
   }
   return (
     <>
-      <div className="page-heading">
-        <div>
-          <h1>Каталог товаров</h1>
-          <p>Выберите товары для самовывоза.</p>
-        </div>
-        <div className="search">
-          <svg className="icon" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="10" cy="10" r="6" />
-            <path d="m15 15 6 6" />
-          </svg>
-          <input
-            aria-label="Поиск товаров"
-            placeholder="Название или вкус"
-            value={query}
-            onChange={(e) => update("q", e.target.value)}
-          />
-          {query ? (
-            <button onClick={() => update("q", "")} aria-label="Очистить поиск">
-              ×
-            </button>
-          ) : null}
-        </div>
+      {!query && category === "Все" && status === "succeeded" && (
+        <FeaturedShelf products={items} />
+      )}
+      <div className="catalog-title">
+        <h1>Каталог товаров</h1>
+        <span className="count" aria-live="polite">
+          {status === "succeeded" ? list.length : ""}
+        </span>
       </div>
       <div className="filter-row">
         <div className="tabs" aria-label="Категории">
@@ -67,11 +60,6 @@ export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
             </button>
           ))}
         </div>
-        <span className="count" aria-live="polite">
-          {status === "succeeded"
-            ? `${list.length} из ${items.length} товаров`
-            : ""}
-        </span>
       </div>
       {status === "loading" || status === "idle" ? (
         <div className="loading" role="status">
@@ -99,6 +87,7 @@ export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
               key={p.id}
               product={p}
               onAdd={onAdd}
+              onDecrease={(id) => dispatch(decreaseItem(id))}
               quantity={cart[p.id]}
             />
           ))}

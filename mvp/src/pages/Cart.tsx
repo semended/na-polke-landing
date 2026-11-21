@@ -25,10 +25,9 @@ export function Cart() {
         <div>
           <div className="eyebrow">Самовывоз</div>
           <h1>Ваша корзина</h1>
-          <p>Проверьте количество и сумму перед оформлением.</p>
         </div>
         <Link className="backlink" to="/catalog">
-          Продолжить покупки ↗
+          Продолжить покупки
         </Link>
       </div>
       <div className="split">
