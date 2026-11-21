@@ -1,0 +1,88 @@
+import { expect, test, type Page } from "@playwright/test";
+
+async function addHaribo(page: Page) {
+  await page.getByRole("textbox", { name: /поиск/i }).fill("Haribo");
+  await page
+    .getByRole("link", { name: "Haribo Phantasia", exact: true })
+    .click();
+  await page.getByRole("button", { name: /добавить.*в корзину/i }).click();
+  await page.getByRole("link", { name: /^корзина/i }).click();
+  await page
+    .getByRole("button", { name: /увеличить количество Haribo/i })
+    .click();
+  await expect(page.getByTestId("quantity-value")).toHaveText("2");
+  await expect(page.locator(".total")).toContainText(/458\s*₽/);
+}
+
+async function placeOrder(page: Page, name: string) {
+  await page.getByRole("link", { name: /к оформлению/i }).click();
+  await page.getByLabel("Имя", { exact: true }).fill(name);
+  await page.getByLabel("Телефон", { exact: true }).fill("+7 900 000-00-00");
+  await page.getByRole("button", { name: "Оформить заказ" }).click();
+  await expect(
+    page.getByRole("heading", { name: "Заказ получен" }),
+  ).toBeVisible();
+  await expect(page.locator("main")).toContainText(name);
+  return page.url();
+}
+
+async function openProfile(page: Page) {
+  await page.getByRole("link", { name: /^Профиль/ }).click();
+}
+
+for (const width of [375, 1440]) {
+  test(`сценарий защиты начинается с лендинга при ширине ${width} px`, async ({
+    page,
+  }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
+    await page
+      .locator(".hero")
+      .getByRole("link", { name: "Открыть магазин" })
+      .click();
+    await expect(page).toHaveURL(/\/na-polke-landing\/mvp\/#\/catalog$/);
+    await addHaribo(page);
+    await page.reload();
+    await expect(page.getByTestId("quantity-value")).toHaveText("2");
+    await expect(page.locator(".total")).toContainText(/458\s*₽/);
+
+    const guestOrder = await placeOrder(page, "Демо Гость");
+    const guestNumber = new URL(guestOrder).hash.split("/").at(-1);
+    expect(guestNumber).toMatch(/^IMP-/);
+    await page.goto("./");
+    await page.getByRole("link", { name: "Вход для сотрудника" }).click();
+    await page.getByRole("button", { name: "Войти как сотрудник" }).click();
+    await expect(
+      page.getByRole("heading", { name: "Кабинет сотрудника" }),
+    ).toBeVisible();
+    await page.getByRole("link", { name: new RegExp(guestNumber!) }).click();
+    await expect(page).toHaveURL(guestOrder);
+    await expect(page.locator("main")).toContainText("Демо Гость");
+    await expect(page.locator("main")).toContainText(/458\s*₽/);
+
+    await openProfile(page);
+    await page.getByRole("button", { name: "Войти как Анна" }).click();
+    await page
+      .getByRole("link", { name: "Каталог", exact: true })
+      .first()
+      .click();
+    await addHaribo(page);
+    const annaOrder = await placeOrder(page, "Демо Анна");
+    await page
+      .locator("header")
+      .getByRole("link", { name: "Мои заказы" })
+      .click();
+    await expect(page.locator("main")).not.toContainText(guestNumber!);
+    await page.getByRole("link", { name: /IMP-/ }).click();
+    await expect(page).toHaveURL(annaOrder);
+
+    await openProfile(page);
+    await page.getByRole("button", { name: "Войти как Иван" }).click();
+    await page.goto(annaOrder);
+    await expect(
+      page.getByRole("heading", { name: "Заказ не найден" }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(page.locator("main")).not.toContainText("Демо Анна");
+  });
+}
