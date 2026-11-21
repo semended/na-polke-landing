@@ -15,6 +15,7 @@ export function CatalogSearch() {
       return;
     }
     const next = new URLSearchParams(params);
+    next.delete("page");
     if (query) next.set("q", query);
     else next.delete("q");
     setParams(next, { replace: true });

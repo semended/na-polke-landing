@@ -1,3 +1,4 @@
+import { assortmentProducts } from "./assortment";
 import type { Product } from "./domain";
 export const products: Product[] = [
   {
@@ -66,5 +67,6 @@ export const products: Product[] = [
     description:
       "Фруктовое драже в яркой баночке. Несколько вкусов в одной упаковке.",
   },
+  ...assortmentProducts,
 ];
 export const categories = ["Все", "Шоколад", "Мармелад", "Газировка", "Драже"];

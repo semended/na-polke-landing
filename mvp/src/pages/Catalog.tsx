@@ -11,6 +11,8 @@ import {
 import { ProductCard } from "../components/ProductCard";
 import { FeaturedShelf } from "../components/FeaturedShelf";
 
+const batchSize = 24;
+
 export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
   const dispatch = useAppDispatch();
   const [params, setParams] = useSearchParams();
@@ -26,9 +28,17 @@ export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
     void dispatch(fetchProducts({ mode }));
   }, [mode, dispatch]);
   const list = filterProducts(items, query, category);
-  function update(key: string, value: string) {
+  const requestedPage = Number(params.get("page"));
+  const page =
+    Number.isSafeInteger(requestedPage) && requestedPage > 0
+      ? Math.min(requestedPage, Math.max(1, Math.ceil(list.length / batchSize)))
+      : 1;
+  const visible = list.slice(0, page * batchSize);
+
+  function update(key: "category" | "page", value: string) {
     setParams(
       (p) => {
+        if (key === "category") p.delete("page");
         if (value) p.set(key, value);
         else p.delete(key);
         return p;
@@ -81,17 +91,32 @@ export function Catalog({ onAdd }: { onAdd: (id: string) => void }) {
           </button>
         </div>
       ) : list.length ? (
-        <div className="products catalog-products">
-          {list.map((p) => (
-            <ProductCard
-              key={p.id}
-              product={p}
-              onAdd={onAdd}
-              onDecrease={(id) => dispatch(decreaseItem(id))}
-              quantity={cart[p.id]}
-            />
-          ))}
-        </div>
+        <>
+          <div className="products catalog-products">
+            {visible.map((p) => (
+              <ProductCard
+                key={p.id}
+                product={p}
+                onAdd={onAdd}
+                onDecrease={(id) => dispatch(decreaseItem(id))}
+                quantity={cart[p.id]}
+              />
+            ))}
+          </div>
+          {visible.length < list.length && (
+            <div className="catalog-more">
+              <span>
+                Показано {visible.length} из {list.length}
+              </span>
+              <button
+                className="btn secondary"
+                onClick={() => update("page", String(page + 1))}
+              >
+                Показать ещё
+              </button>
+            </div>
+          )}
+        </>
       ) : (
         <div className="empty">
           <h2>

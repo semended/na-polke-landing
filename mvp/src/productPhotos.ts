@@ -1,3 +1,5 @@
+import { assortmentPhotoSizes } from "./assortment";
+
 type PhotoSize = readonly [width: number, height: number];
 
 export const photoSizes = new Map<string, PhotoSize>([
@@ -7,6 +9,7 @@ export const photoSizes = new Map<string, PhotoSize>([
   ["maltesers", [298, 347]],
   ["kinder", [208, 486]],
   ["skittles", [445, 554]],
+  ...assortmentPhotoSizes,
 ]);
 
 export function photoUrl(id: string, compact = false) {

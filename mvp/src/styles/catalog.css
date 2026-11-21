@@ -317,3 +317,18 @@
     scrollbar-width: thin;
   }
 }
+
+.catalog-more {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  margin-top: 28px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.photo-stage img,
+.cart-photo img,
+.detail-stage img {
+  mix-blend-mode: multiply;
+}
