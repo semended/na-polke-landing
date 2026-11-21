@@ -15,7 +15,7 @@ async function capture(page: Page, name: string, width: number) {
 for (const width of [375, 1440]) {
   test(`экраны демонстрации при ширине ${width} px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
-    await page.goto("./");
+    await page.goto("./about.html");
     await expect(
       page.locator(".hero").getByRole("link", { name: "Открыть магазин" }),
     ).toBeVisible();
@@ -31,6 +31,14 @@ for (const width of [375, 1440]) {
     await capture(page, "catalog", width);
 
     await page
+      .getByRole("link", { name: "Haribo Phantasia", exact: true })
+      .click();
+    await expect(
+      page.getByRole("heading", { name: "Haribo Phantasia", exact: true }),
+    ).toBeVisible();
+    await capture(page, "product", width);
+
+    await page
       .getByRole("button", { name: "Добавить Haribo Phantasia в корзину" })
       .click();
     await page.getByRole("link", { name: /^Корзина/ }).click();
@@ -38,6 +46,12 @@ for (const width of [375, 1440]) {
       page.getByRole("heading", { name: "Ваша корзина" }),
     ).toBeVisible();
     await capture(page, "cart", width);
+
+    await page.getByRole("link", { name: /к оформлению/i }).click();
+    await expect(
+      page.getByRole("heading", { name: "Оформление заказа" }),
+    ).toBeVisible();
+    await capture(page, "checkout", width);
 
     await page.getByRole("link", { name: /^Профиль/ }).click();
     await expect(

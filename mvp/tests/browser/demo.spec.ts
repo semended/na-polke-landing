@@ -5,7 +5,12 @@ async function addHaribo(page: Page) {
   await page
     .getByRole("link", { name: "Haribo Phantasia", exact: true })
     .click();
-  await page.getByRole("button", { name: /добавить.*в корзину/i }).click();
+  await expect(
+    page.getByRole("heading", { name: "Haribo Phantasia", level: 1 }),
+  ).toBeVisible();
+  await page
+    .getByRole("button", { name: "Добавить Haribo Phantasia в корзину" })
+    .click();
   await page.getByRole("link", { name: /^корзина/i }).click();
   await page
     .getByRole("button", { name: /увеличить количество Haribo/i })
@@ -31,15 +36,11 @@ async function openProfile(page: Page) {
 }
 
 for (const width of [375, 1440]) {
-  test(`сценарий защиты начинается с лендинга при ширине ${width} px`, async ({
+  test(`покупка с главной страницы при ширине ${width} px`, async ({
     page,
   }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("./");
-    await page
-      .locator(".hero")
-      .getByRole("link", { name: "Открыть магазин" })
-      .click();
     await expect(page).toHaveURL(/\/na-polke-landing\/mvp\/#\/catalog$/);
     await addHaribo(page);
     await page.reload();
@@ -86,6 +87,52 @@ for (const width of [375, 1440]) {
     await expect(page.locator("main")).not.toContainText("Демо Анна");
   });
 }
+
+test("количество и сумма в корзине обновляются прямо с витрины", async ({
+  page,
+}) => {
+  await page.goto("./");
+  const card = page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Haribo Phantasia", exact: true }),
+  });
+  const add = card.getByRole("button", {
+    name: "Добавить Haribo Phantasia в корзину",
+  });
+  const decrease = card.getByRole("button", {
+    name: "Уменьшить количество Haribo Phantasia",
+  });
+  const cart = page.locator("header").getByRole("link", { name: /^Корзина/ });
+  await add.click();
+  await expect(cart).toHaveAccessibleName(/1 шт.*229\s*₽/);
+  await add.click();
+  await expect(cart).toHaveAccessibleName(/2 шт.*458\s*₽/);
+  await decrease.click();
+  await expect(cart).toHaveAccessibleName(/1 шт.*229\s*₽/);
+  await page.reload();
+  await expect(decrease).toBeVisible();
+  await decrease.click();
+  await expect(decrease).toHaveCount(0);
+  await cart.click();
+  await expect(
+    page.getByRole("heading", { name: "В корзине пока пусто" }),
+  ).toBeVisible();
+});
+
+test.describe("витрина без JavaScript", () => {
+  test.use({ javaScriptEnabled: false });
+
+  test("корневая страница открывает доступный без скриптов каталог", async ({
+    page,
+  }) => {
+    await page.goto("./");
+    await page.getByRole("link", { name: "статическом каталоге" }).click();
+    await expect(page).toHaveURL(/about\.html#selection$/);
+    const products = page.locator("#selection article");
+    await expect(products).toHaveCount(6);
+    await products.first().locator("summary").click();
+    await expect(products.first().locator("details p")).toBeVisible();
+  });
+});
 
 test("длинное русское название помещается при ширине 320 px", async ({
   page,
