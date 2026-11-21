@@ -1,6 +1,6 @@
 const { test, before, after } = require("node:test");
 const assert = require("node:assert/strict");
-const { chromium } = require("playwright");
+const { chromium, webkit } = require("playwright");
 
 const base = process.env.MVP_URL || "http://127.0.0.1:5173/";
 const demoName = "Демо Покупатель";
@@ -9,7 +9,8 @@ const comment = "Тестовый самовывоз";
 let browser;
 
 before(async () => {
-  browser = await chromium.launch();
+  const engine = process.env.MVP_BROWSER === "webkit" ? webkit : chromium;
+  browser = await engine.launch();
 });
 after(async () => {
   await browser?.close();

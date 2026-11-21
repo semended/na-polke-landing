@@ -47,7 +47,7 @@ for (const width of [375, 1440]) {
     await expect(page.locator(".total")).toContainText(/458\s*₽/);
 
     const guestOrder = await placeOrder(page, "Демо Гость");
-    const guestNumber = new URL(guestOrder).hash.split("/").at(-1);
+    const guestNumber = new URL(guestOrder).hash.split("/").at(-1) ?? "";
     expect(guestNumber).toMatch(/^IMP-/);
     await page.goto("./");
     await page.getByRole("link", { name: "Вход для сотрудника" }).click();
@@ -55,7 +55,7 @@ for (const width of [375, 1440]) {
     await expect(
       page.getByRole("heading", { name: "Кабинет сотрудника" }),
     ).toBeVisible();
-    await page.getByRole("link", { name: new RegExp(guestNumber!) }).click();
+    await page.getByRole("link", { name: new RegExp(guestNumber) }).click();
     await expect(page).toHaveURL(guestOrder);
     await expect(page.locator("main")).toContainText("Демо Гость");
     await expect(page.locator("main")).toContainText(/458\s*₽/);
@@ -72,7 +72,7 @@ for (const width of [375, 1440]) {
       .locator("header")
       .getByRole("link", { name: "Мои заказы" })
       .click();
-    await expect(page.locator("main")).not.toContainText(guestNumber!);
+    await expect(page.locator("main")).not.toContainText(guestNumber);
     await page.getByRole("link", { name: /IMP-/ }).click();
     await expect(page).toHaveURL(annaOrder);
 
@@ -86,3 +86,57 @@ for (const width of [375, 1440]) {
     await expect(page.locator("main")).not.toContainText("Демо Анна");
   });
 }
+
+test("длинное русское название помещается при ширине 320 px", async ({
+  page,
+}) => {
+  const name =
+    "Мармелад с чёрной смородиной и северными лесными ягодами в большой подарочной упаковке";
+  await page.setViewportSize({ width: 320, height: 900 });
+  await page.goto("./");
+  await page.getByRole("link", { name: "Вход для сотрудника" }).click();
+  await page.getByRole("button", { name: "Войти как сотрудник" }).click();
+  await page.getByRole("button", { name: "Добавить товар" }).click();
+  await page.getByLabel("Название").fill(name);
+  await page.getByLabel("Категория").selectOption({ label: "Мармелад" });
+  await page.getByLabel("Фасовка").fill("120 г");
+  await page.getByLabel(/цена/i).fill("187");
+  await page.getByLabel("Вкус").fill("Смородина");
+  await page.getByLabel("Описание").fill("Товар для проверки каталога.");
+  await page.getByRole("button", { name: "Сохранить товар" }).click();
+  await expect(
+    page.getByRole("button", { name: "Редактировать " + name }),
+  ).toBeVisible();
+  const hasOverflow = () =>
+    page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
+  expect(await hasOverflow()).toBe(false);
+  await page
+    .getByRole("link", { name: "Каталог", exact: true })
+    .first()
+    .click();
+  await page.getByRole("textbox", { name: /поиск/i }).fill(name);
+  await expect(page.getByRole("link", { name, exact: true })).toBeVisible();
+  expect(await hasOverflow()).toBe(false);
+});
+
+test("сборка Storybook открывает карточку товара по ссылке", async ({
+  page,
+}) => {
+  const response = await page.request.get("./storybook/index.json");
+  expect(response.ok()).toBe(true);
+  const { entries } = await response.json();
+  const story = Object.values<{ id: string; name: string; title: string }>(
+    entries,
+  ).find(
+    ({ name, title }) =>
+      name === "В наличии" && title === "Каталог/Карточка товара",
+  );
+  if (!story) throw new Error("В сборке нет сторис карточки товара");
+  await page.goto("./storybook/iframe.html?id=" + story.id);
+  await expect(
+    page.getByRole("heading", { name: "Haribo Phantasia" }),
+  ).toBeVisible();
+  await expect(
+    page.getByRole("img", { name: "Haribo Phantasia" }),
+  ).toHaveJSProperty("complete", true);
+});

@@ -7,7 +7,7 @@ import {
   validateCheckout,
   type Checkout,
   type Product,
-} from "../src/domain";
+} from "./domain";
 
 const products: Product[] = [
   {

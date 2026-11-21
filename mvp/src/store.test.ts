@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { Product } from "../src/domain";
+import type { Product } from "./domain";
 import {
   addItem,
   cartReducer,
@@ -7,7 +7,7 @@ import {
   decreaseItem,
   fetchProducts,
   removeItem,
-} from "../src/store";
+} from "./store";
 
 const product: Product = {
   id: "berry",

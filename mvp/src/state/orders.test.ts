@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { products } from "../src/products";
-import { readShop, readTab, writeProduct } from "../src/storage";
+import { products } from "../products";
+import { readShop, readTab, writeProduct } from "../storage";
 import {
   addItem,
   saveProduct,
@@ -10,8 +10,8 @@ import {
   submitOrder,
   switchSession,
   updateDraft,
-} from "../src/store";
-import type { Session } from "../src/domain";
+} from "../store";
+import type { Session } from "../domain";
 
 const contact = { name: "Анна", phone: "89991234567", comment: "" };
 const item = products[0];

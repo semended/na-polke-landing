@@ -1,5 +1,6 @@
 name: Test and publish coursework
 on:
+  pull_request:
   push:
     branches: [main]
   workflow_dispatch:
@@ -8,12 +9,18 @@ permissions:
   contents: read
 
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
+    container:
+      image: mcr.microsoft.com/playwright:v1.63.0-noble@sha256:eff16c30e6f3f4af0a03fa4b706120d5e9b0891c344a27d64559aff5900a4a27
+      options: --ipc=host --init
+    defaults:
+      run:
+        working-directory: mvp
     steps:
       - uses: actions/checkout@v7.0.1
       - uses: actions/setup-node@v7.1.0
@@ -21,35 +28,42 @@ jobs:
           node-version: 24
           cache: npm
           cache-dependency-path: mvp/package-lock.json
-      - name: Install, test and build the frontend
-        working-directory: mvp
+      - name: Check source and build the published site
         run: |
           npm ci
           npm run format:check
+          npm run lint
           npm test
-          npm run build
-      - name: Exercise the built app in Chromium
-        working-directory: mvp
+          npm run test:stories
+          npm run build:pages
+      - name: Check the demo through the published paths
+        run: npm run test:demo
+      - name: Compare desktop and mobile screenshots
+        run: npm run test:visual
+      - name: Check existing browser scenarios on the built application
         run: |
-          npx playwright install --with-deps chromium --only-shell
-          npm run preview -- --port 4173 --strictPort &
+          npx vite preview --outDir .pages --host 127.0.0.1 --port 4173 --strictPort &
           server=$!
           trap 'kill "$server" 2>/dev/null || true' EXIT
-          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/ -o /dev/null
-          MVP_URL=http://127.0.0.1:4173/ npm run test:e2e
-      - name: Assemble the landing page, presentation and MVP
-        run: |
-          mkdir site
-          cp -R index.html styles.css script.js assets presentation site/
-          cp -R mvp/dist site/mvp
-          cp README.md QA.md SOURCES.md LANDING.md site/
-      - uses: actions/upload-pages-artifact@v5.0.0
+          curl --fail --retry 10 --retry-connrefused --retry-delay 1 http://127.0.0.1:4173/na-polke-landing/ -o /dev/null
+          export MVP_URL=http://127.0.0.1:4173/na-polke-landing/mvp/
+          npm run test:e2e
+          MVP_BROWSER=webkit npm run test:e2e
+      - uses: actions/upload-artifact@v7
+        if: failure()
         with:
-          path: site
+          name: browser-failures
+          path: mvp/e2e-results/
+          if-no-files-found: ignore
+      - uses: actions/upload-pages-artifact@v5.0.0
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: mvp/.pages/na-polke-landing
 
   deploy:
+    if: github.ref == 'refs/heads/main'
     needs: build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       pages: write
       id-token: write
