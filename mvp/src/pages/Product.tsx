@@ -29,7 +29,11 @@ export function Product({ onAdd }: { onAdd: (id: string) => void }) {
       </nav>
       <section className="detail">
         <div className={`detail-stage ${product.tone}`}>
-          <ProductPhoto product={product} />
+          <ProductPhoto
+            product={product}
+            sizes="(max-width: 700px) 90vw, 520px"
+            eager
+          />
         </div>
         <div className="detail-copy">
           <div className="eyebrow">

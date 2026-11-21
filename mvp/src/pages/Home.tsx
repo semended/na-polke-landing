@@ -1,3 +1,5 @@
+import { ProductPhoto } from "../components/ProductPhoto";
+import { products as sampleProducts } from "../products";
 import { Link } from "react-router-dom";
 import { selectPublicProducts, useAppSelector } from "../store";
 import { Arrow } from "../components/Shared";
@@ -27,21 +29,15 @@ export function Home({ onAdd }: { onAdd: (id: string) => void }) {
         </div>
         <div className="hero-art">
           <div className="hero-stage" />
-          <img
-            className="haribo"
-            src={`${import.meta.env.BASE_URL}products/haribo.png`}
-            alt="Мармелад Haribo"
-          />
-          <img
-            className="fanta"
-            src={`${import.meta.env.BASE_URL}products/fanta.png`}
-            alt="Fanta со вкусом персика"
-          />
-          <img
-            className="marabou"
-            src={`${import.meta.env.BASE_URL}products/marabou.png`}
-            alt="Шоколад Marabou Oreo"
-          />
+          {sampleProducts.slice(0, 3).map((product) => (
+            <ProductPhoto
+              key={product.id}
+              className={product.id}
+              product={product}
+              sizes="240px"
+              eager
+            />
+          ))}
         </div>
       </section>
       <section>
