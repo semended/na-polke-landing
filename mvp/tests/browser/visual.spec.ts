@@ -13,18 +13,18 @@ async function capture(page: Page, name: string, width: number) {
 }
 
 for (const width of [375, 1440]) {
-  test(`экраны демонстрации при ширине ${width} px`, async ({ page }) => {
+  test(`учебный лендинг при ширине ${width} px`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("./about.html");
     await expect(
       page.locator(".hero").getByRole("link", { name: "Открыть магазин" }),
     ).toBeVisible();
     await capture(page, "landing", width);
+  });
 
-    await page
-      .locator(".hero")
-      .getByRole("link", { name: "Открыть магазин" })
-      .click();
+  test(`покупка и кабинеты при ширине ${width} px`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto("./");
     await expect(
       page.getByRole("link", { name: "Haribo Phantasia", exact: true }),
     ).toBeVisible();
