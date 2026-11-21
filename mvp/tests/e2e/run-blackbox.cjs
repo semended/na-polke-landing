@@ -57,11 +57,18 @@ async function chooseProfile(page, name) {
 async function startOrder(page) {
   await visit(page, "/catalog");
   await page.getByRole("textbox", { name: /поиск/i }).fill("Haribo");
-  await page.getByRole("link", { name: /^Haribo/i }).click();
   await page
-    .getByRole("heading", { name: "Haribo Phantasia", exact: true })
+    .getByRole("link", { name: "Haribo Phantasia", exact: true })
+    .click();
+  await page
+    .getByRole("heading", { name: "Haribo Phantasia", exact: true, level: 1 })
     .waitFor();
-  await page.getByRole("button", { name: /добавить.*в корзину/i }).click();
+  await page
+    .getByRole("button", {
+      name: "Добавить Haribo Phantasia в корзину",
+      exact: true,
+    })
+    .click();
   await page
     .getByRole("link", { name: /^корзина/i })
     .first()

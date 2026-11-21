@@ -187,3 +187,125 @@ test("сборка Storybook открывает карточку товара п
     page.getByRole("img", { name: "Haribo Phantasia" }),
   ).toHaveJSProperty("complete", true);
 });
+
+test("200 товаров, поиск по всему каталогу и покупка новинок", async ({
+  page,
+}) => {
+  await page.goto("./");
+  const cards = page.getByRole("article");
+  const more = page.getByRole("button", { name: /показать ещё/i });
+  const productNames = () => cards.getByRole("heading").allTextContents();
+
+  await expect(cards).toHaveCount(24);
+  const firstPage = new Set(await productNames());
+  for (let shown = 24; shown < 200; shown += 24) {
+    await more.click();
+    await expect(cards).toHaveCount(Math.min(shown + 24, 200));
+  }
+  await expect(more).toBeHidden();
+  const allNames = new Set(await productNames());
+  expect(allNames.size).toBe(200);
+
+  const categories = ["Шоколад", "Мармелад", "Газировка", "Драже"];
+  const categorized = new Set<string>();
+  let lateProduct = "";
+  for (const category of categories) {
+    const categoryName = new RegExp("^" + category + "(?:\\s*\\(?\\d+\\)?)?$");
+    const filter = page
+      .getByRole("button", { name: categoryName })
+      .or(page.getByRole("link", { name: categoryName }))
+      .or(page.getByRole("radio", { name: categoryName }));
+    await filter.click();
+    await expect(cards).toHaveCount(24);
+    await more.click();
+    await expect(cards).toHaveCount(48);
+    await more.click();
+    await expect(cards).toHaveCount(50);
+    await expect(more).toBeHidden();
+    for (const name of await productNames()) {
+      expect(categorized.has(name), name).toBe(false);
+      categorized.add(name);
+    }
+    const sample = cards.last();
+    const image = sample.locator("img").first();
+    await image.scrollIntoViewIfNeeded();
+    await expect
+      .poll(() =>
+        image.evaluate(
+          (node: HTMLImageElement) =>
+            node.complete &&
+            node.naturalWidth > 0 &&
+            node.naturalHeight > 0 &&
+            new URL(node.currentSrc).origin === location.origin,
+        ),
+      )
+      .toBe(true);
+    const available = cards.filter({
+      has: page.getByRole("button", {
+        name: /добавить.*в корзину/i,
+        disabled: false,
+      }),
+    });
+    const lastAvailable = await available
+      .getByRole("heading")
+      .allTextContents();
+    const candidate = lastAvailable
+      .reverse()
+      .find((name) => !firstPage.has(name) && !/Fanta Lemon/i.test(name));
+    if (candidate) lateProduct = candidate;
+  }
+  expect(categorized).toEqual(allNames);
+  expect(
+    lateProduct,
+    "В выборке есть доступный товар за пределами первых 24",
+  ).toBeTruthy();
+
+  await page.goto("./");
+  const search = page.getByRole("textbox", { name: /поиск/i });
+  function rubles(text: string) {
+    const match = text.match(/([\d\u00a0\u202f ]+)\s*₽/);
+    if (!match)
+      throw new Error("На витрине отсутствует цена в рублях: " + text);
+    return Number(match[1].replace(/\s/g, ""));
+  }
+  let total = 0;
+  let firstPrice = 0;
+  const names: string[] = [];
+  for (const query of [lateProduct, "Fanta Lemon"]) {
+    await search.fill(query);
+    const card = cards
+      .filter({
+        has: page.getByRole("heading", {
+          name: query,
+          exact: query === lateProduct,
+        }),
+      })
+      .first();
+    const name = await card.getByRole("heading").innerText();
+    const price = rubles(await card.innerText());
+    expect(price).toBeGreaterThan(0);
+    if (!names.length) firstPrice = price;
+    names.push(name);
+    await card
+      .getByRole("button", { name: "Добавить " + name + " в корзину" })
+      .click();
+    total += price;
+  }
+  await page
+    .locator("header")
+    .getByRole("link", { name: /^Корзина/ })
+    .click();
+  const basketTotal = () => page.locator(".total").innerText().then(rubles);
+  await expect.poll(basketTotal).toBe(total);
+  await page
+    .getByRole("button", { name: "Увеличить количество " + names[0] })
+    .click();
+  await expect.poll(basketTotal).toBe(total + firstPrice);
+  await page.reload();
+  await expect.poll(basketTotal).toBe(total + firstPrice);
+  for (const name of names) {
+    await expect(
+      page.getByRole("button", { name: "Уменьшить количество " + name }),
+    ).toBeVisible();
+  }
+});
